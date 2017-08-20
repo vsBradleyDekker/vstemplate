@@ -1,0 +1,14 @@
+.jumbotron{
+    background: #000;
+    color: #FFF;
+    a{
+        border: none;
+        border-radius: 0;
+        background: red;
+        color: #FFF;
+        &:hover{
+            background: red;
+            opacity: 0.8;
+        }
+    }
+}
