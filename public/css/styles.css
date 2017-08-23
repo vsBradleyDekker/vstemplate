@@ -9025,6 +9025,28 @@ ul {
 .head-container {
   background: #64880c; }
 
+.unit-calculator {
+  background: rgba(255, 255, 255, 0.83); }
+  .unit-calculator h1 {
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    font-style: oblique;
+    font-weight: bolder;
+    color: rgba(146, 50, 41, 0.98); }
+  .unit-calculator .btn {
+    align-items: flex-start;
+    text-align: center;
+    cursor: default;
+    color: #FFFFFF;
+    background-color: #399;
+    box-sizing: border-box;
+    padding: 10px;
+    border-width: 2px;
+    border-style: none;
+    border-color: none;
+    border-image: none;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    width: 100%; }
+
 .jumbotron {
   background: #000;
   color: #FFF; }
