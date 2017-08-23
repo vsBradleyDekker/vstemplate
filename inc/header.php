@@ -12,5 +12,4 @@
         <link rel="stylesheet" href="css/styles.css?ver=<?php echo rand();?>">
     </head>
     <body>
-    
    
