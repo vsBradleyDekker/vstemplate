@@ -1,41 +1,98 @@
+<!DOCTYPE html>
+<html>
+  <body>
+  <div class = 'row'>
+   <div class= 'columns small-12 text-center' > 
+    <img src = "img/img-top-logo-dark.png"/>
+  </div>
+  </div>  
 <?php
-      $db = connect();
-      
-      if(isset($_POST['form']) && $_POST['form']=='insert') {
-        $sql ="INSERT INTO `items` (`id`, `name`, `start`, `end`, `ts`) "
-         ."VALUES (NULL, '". $_POST['name']."', '".$_POST['start_date']." ".$_POST['start_time']."', '".$_POST['end_date']." ".$_POST['end_time']."', CURRENT_TIMESTAMP);";
-          insert($sql, $db);
-
-        //echo $sql;
-      }
-
-      if(isset($_GET['action']) && $_GET['action']=='delete') {
-        delete($_GET['id'], $db);
-      }
-
-      
-      if(isset($_POST['form']) && $_POST['form']=='update') {
-        //echo "<pre>";print_r($_POST);exit; // to check your post data
-        $id = $_POST['id'];
-        $name = $_POST['name'];
-        $start = $_POST['start_date']." ".$_POST['start_time'];
-        $end = $_POST['end_date']." ".$_POST['end_time'];
-        $query = "UPDATE items set name='$name', start='$start', end='$end' where id=$id";
-        $db->query($query); //run the query    
-      }
+  $error = "";
+  $db = connect();
   
-      if(isset($_GET['action']) && $_GET['action']=='edit') {
-        $item = getDataFromTable($_GET['id'], $db);
-      }   
 
-      $results = getRows("SELECT * FROM `items`", $db);
-      //print_r($results);
+    if(isset($_POST ['form'])){
+      
+      $st = strtotime($_POST['start_date']." ".$_POST['start_time']);
+      $et = strtotime($_POST['end_date']." ".$_POST['end_time']);
+      $name = $_POST['name'];
+      $maxTime = strtotime('+ 4 years');
+        
+      if($name == false){
+        unset($_POST);
+          $error = "please name your task. ";
+      }
+      if($st >= $et){
+      
+        unset($_POST);
+          $error = "Your start time is past your end time. ";
+        
+      }
+      if($st >= $maxTime){
+        
+          unset($_POST);
+            $error = "You cannot place a task more than four years in the future. ";
+          
+        }
+      if($st < strtotime('now')){
+        unset($_POST);
+        $error = "Your start time cannot be in the past. ";
+      }
 
-      checkTime();
+    }
+
+     
+    if(isset($_POST['form']) && $_POST['form']=='insert') {
+      
+      $sql ="INSERT INTO `items` (`id`, `name`, `start`, `end`, `ts`) "
+        ."VALUES (NULL, '". $_POST['name']."', '".$_POST['start_date']." ".$_POST['start_time']."', '".$_POST['end_date']." ".$_POST['end_time']."', CURRENT_TIMESTAMP);";
+        insert($sql, $db);
+
+      //echo $sql;
+    }
+
+    if(isset($_GET['action']) && $_GET['action']=='delete') {
+      
+      delete($_GET['id'], $db);
+    }
+  
+
+    
+    if(isset($_POST['form']) && $_POST['form']=='update') {
+      //echo "<pre>";print_r($_POST);exit; // to check your post data
+      $id = $_POST['id'];
+      $name = $_POST['name'];
+      $start = $_POST['start_date']." ".$_POST['start_time'];
+      $end = $_POST['end_date']." ".$_POST['end_time'];
+      $query = "UPDATE items set name='$name', start='$start', end='$end' where id=$id";
+      $db->query($query); //run the query    
+    }
+
+    if(isset($_GET['action']) && $_GET['action']=='edit') {
+      $item = getDataFromTable($_GET['id'], $db);
+    }   
+
+    $results = getRows("SELECT * FROM `items`", $db);
+    //print_r($results);
+
+    checkTime();
 ?>
 
 <?php include('../inc/header.php'); ?>
-
+<div class = 'row'>
+  <div class = 'columns small-12'>
+      <?php if($error !== "") { ?>
+    <div class = "alert callout warning" > 
+      <button class="close-button" aria-label="Dismiss alert" type="button" data-close>
+        <span aria-hidden="true">&times;</span>
+      </button>
+      
+    <?php echo $error ?>
+   
+    <?php } ?>  
+    </div>
+  </div>
+</div>
 <div class = 'row'>
   <div class ='columns small-12'>
       <table>
@@ -57,7 +114,8 @@
           <td><a href="http://localhost/?action=delete&id=<?=$row['id'];?>">delete</a></td>
           <td><a href="http://localhost/?action=edit&id=<?=$row['id'];?>">edit</a></td>
         </tr>
-    <?php endforeach; ?>
+        <?php endforeach; ?>
+      </tbody>
   </div>
 </div>
 
@@ -102,6 +160,7 @@
         }
 
           return $db;
+           
   }
 
   function getRows($sql, $db) {
@@ -121,7 +180,7 @@
     if(!$result = $db->query($sql)){
       die('There was an error running the query [' . $db->error . ']');
     }
-        header("Location: \ ");
+        //header("Location: \ ");
   }
 
   function delete($id, $db) {
@@ -161,10 +220,12 @@
 
     $plusOneHour = strtotime('+ 1 hour');
     $startOfDay = strtotime(date('Y-m-d'));
-    echo date('d-m-Y', $startOfDay);
+
+    //echo date('d-m-Y', $startOfDay); 
+
     $nextWeek = strtotime(' + 7 days');
 
-    echo date('d-m-Y', $nextWeek);
+    //echo date('d-m-Y', $nextWeek);
   }
 ?>
 <?php
