@@ -13,6 +13,6 @@
             noPercentageSign: "false",
             percent: 15
         });
-
     });
+
 

@@ -45,6 +45,7 @@ const config = {
 
     },
 
+
     plugins: [
         new CleanWebpackPlugin([outputDir + 'css', outputDir + 'js', outputDir + 'fonts'], {}),
         new BundleTracker({ filename: './webpack-stats.json' }),
