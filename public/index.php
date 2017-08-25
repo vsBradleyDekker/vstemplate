@@ -1,47 +1,51 @@
-<!DOCTYPE html>
-<html>
-  <body>
-  <div class = 'row'>
-   <div class= 'columns small-12 text-center' > 
-    <img src = "img/img-top-logo-dark.png"/>
-  </div>
-  </div>  
 <?php
+include('db.php');
+include('../inc/header.php');
+?>
+<?php
+  $to = "tom@theveales.com.au";
+  $subject = "reminder";
+  $txt = "you have a task coming up in 30 minutes!!";
+  $headers = 'From:tom@theveales.com.au' . "\r\n" .
+  'Reply-To: tom@theveales.com.au' . "\r\n" .
+  'X-Mailer: PHP/' . phpversion();
   $error = "";
   $db = connect();
   
-
-    if(isset($_POST ['form'])){
+  if(isset($_POST ['form'])){
+    
+    $st = strtotime($_POST['start_date']." ".$_POST['start_time']);
+    $et = strtotime($_POST['end_date']." ".$_POST['end_time']);
+    $name = $_POST['name'];
+    $maxTime = strtotime('+ 4 years');
       
-      $st = strtotime($_POST['start_date']." ".$_POST['start_time']);
-      $et = strtotime($_POST['end_date']." ".$_POST['end_time']);
-      $name = $_POST['name'];
-      $maxTime = strtotime('+ 4 years');
-        
-      if($name == false){
-        unset($_POST);
-          $error = "please name your task. ";
-      }
-      if($st >= $et){
-      
-        unset($_POST);
-          $error = "Your start time is past your end time. ";
-        
-      }
-      if($st >= $maxTime){
-        
-          unset($_POST);
-            $error = "You cannot place a task more than four years in the future. ";
-          
-        }
-      if($st < strtotime('now')){
-        unset($_POST);
-        $error = "Your start time cannot be in the past. ";
-      }
-
+    if($name == false){
+      unset($_POST);
+        $error = "please name your task. ";
     }
+    if($st >= $et){
+    
+      unset($_POST);
+        $error = "Your start time is past your end time. ";
+      
+    }
+    if($st >= $maxTime){
+      
+        unset($_POST);
+          $error = "You cannot place a task more than four years in the future. ";
+        
+      }
+    if($st < strtotime('now')){
+      unset($_POST);
+      $error = "Your start time cannot be in the past. ";
+    }
+    /*if($et = strtotime('< 30 minutes')) {
+      mail($to,$subject,$txt,$headers);
+       
+    } 
+    */
+  }
 
-     
     if(isset($_POST['form']) && $_POST['form']=='insert') {
       
       $sql ="INSERT INTO `items` (`id`, `name`, `start`, `end`, `ts`) "
@@ -55,10 +59,9 @@
       
       delete($_GET['id'], $db);
     }
-  
-
     
-    if(isset($_POST['form']) && $_POST['form']=='update') {
+    
+if(isset($_POST['form']) && $_POST['form']=='update') {
       //echo "<pre>";print_r($_POST);exit; // to check your post data
       $id = $_POST['id'];
       $name = $_POST['name'];
@@ -76,49 +79,8 @@
     //print_r($results);
 
     checkTime();
-?>
-
-<?php include('../inc/header.php'); ?>
-<div class = 'row'>
-  <div class = 'columns small-12'>
-      <?php if($error !== "") { ?>
-    <div class = "alert callout warning" > 
-      <button class="close-button" aria-label="Dismiss alert" type="button" data-close>
-        <span aria-hidden="true">&times;</span>
-      </button>
-      
-    <?php echo $error ?>
-   
-    <?php } ?>  
-    </div>
-  </div>
-</div>
-<div class = 'row'>
-  <div class ='columns small-12'>
-      <table>
-        <thead>
-        <tr>
-         <th>Name</th>
-         <th>Start</th>
-         <th>End</th>
-         <th>Actions</th>
-         <th>Edit</td>
-        </tr>
-      </thead>
-      <tbody>
-        <?php foreach ($results as $row) : ?>
-        <tr>
-          <td><?=$row['name'];?></td>
-          <td><?=date("l jS \of F Y @ h:i:s A", strtotime($row['start']));?></td>
-          <td><?=date("l jS \of F Y @ h:i:s A", strtotime($row['end']));?></td>
-          <td><a href="http://localhost/?action=delete&id=<?=$row['id'];?>">delete</a></td>
-          <td><a href="http://localhost/?action=edit&id=<?=$row['id'];?>">edit</a></td>
-        </tr>
-        <?php endforeach; ?>
-      </tbody>
-  </div>
-</div>
-
+?>   
+    
 <div class = 'row'>
   <div class ='columns small-12'>
     
@@ -145,96 +107,32 @@
         <a class="button" href="http://localhost">Create New</a>
       <?php } ?>
     </form>
-        
+  </div>
+</div>
+<div class = 'row'>
+  <div class ='columns small-12'>
+      <table>
+        <thead>
+        <tr>
+        <th>Name</th>
+        <th>Start</th>
+        <th>End</th>
+        <th>Actions</th>
+        <th>Edit</td>
+        </tr>
+      </thead>
+      <tbody>
+        <?php foreach ($results as $row) : ?>
+        <tr>
+          <td><?=$row['name'];?></td>
+          <td><?=date("l jS \of F Y @ h:i:s A", strtotime($row['start']));?></td>
+          <td><?=date("l jS \of F Y @ h:i:s A", strtotime($row['end']));?></td>
+          <td><a href="http://localhost/?action=delete&id=<?=$row['id'];?>">delete</a></td>
+          <td><a href="http://localhost/?action=edit&id=<?=$row['id'];?>">edit</a></td>
+        </tr>
+        <?php endforeach; ?>
+      </tbody>
   </div>
 </div>
 
-
 <?php include('../inc/footer.php'); ?>
-
-<?php 
-  function connect() {
-    $db = new mysqli('localhost', 'root', '', 'todo');
-        if($db->connect_errno > 0){
-          die('Unable to connect to database [' . $db->connect_error . ']');
-        }
-
-          return $db;
-           
-  }
-
-  function getRows($sql, $db) {
-    $rows=array(); 
-    
-    if(!$result = $db->query($sql)){
-      die('There was an error running the query [' . $db->error . ']');
-  }
-
-    while($row = $result->fetch_assoc()){
-      $rows[]= $row;
-    }
-        return $rows;
-  }
-
-  function insert($sql, $db) {
-    if(!$result = $db->query($sql)){
-      die('There was an error running the query [' . $db->error . ']');
-    }
-        //header("Location: \ ");
-  }
-
-  function delete($id, $db) {
-
-    $sql = "DELETE FROM items WHERE id=".$id;
-      if(!$result = $db->query($sql)){
-        die('There was an error running the query [' . $db->error . ']');
-      }   else {
-          header("Location: \ ");
-      }
-  }
-  function edit($result, $db){
-    if(!$result = $db->query($sql)){
-      die('There was an error running the query [' . $db->error . ']');
-  }
-    else{
-      header("Location: \ ");
-    }
-  }
-
-  function getDataFromTable($id, $db) {
-    $sql = "SELECT * FROM items WHERE id=".$id;
-    if(!$result = $db->query($sql)){
-      die('There was an error running the query [' . $db->error . ']');
-    }   else {
-      $data=array();
-      while($row = $result->fetch_assoc()){
-        $data= $row;
-      }
-      return $data;
-    }
-  }
-    
-  function checkTime() {
-    $now = time();
-    $now = strtotime('NOW');
-
-    $plusOneHour = strtotime('+ 1 hour');
-    $startOfDay = strtotime(date('Y-m-d'));
-
-    //echo date('d-m-Y', $startOfDay); 
-
-    $nextWeek = strtotime(' + 7 days');
-
-    //echo date('d-m-Y', $nextWeek);
-  }
-?>
-<?php
-  
- 
- 
-  
-    
-  
-  
-  
-?>
